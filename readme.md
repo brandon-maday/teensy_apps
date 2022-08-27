@@ -9,6 +9,7 @@ Reads temperature from Teensy DHT sensor and sends through serial1 to Raspi. Tee
 
 ### Commands
 START_TEMP: Begins sending temperature
+
 STOP_TEMP: Stops reading temperature
 
 ### Live Graph
