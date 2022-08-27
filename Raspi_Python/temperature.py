@@ -22,8 +22,6 @@ while True:
                 x = int(raw_temp)
                 temp_float = float(cookedserial[13:18])
 
-                if type(x != int):
-                        time.sleep(1)
                 if x >= MEDIUM:
                         medium_loop = True
                         publish.single("temp/teensy","MEDIUM_TEMP",hostname=EC2_IP)
