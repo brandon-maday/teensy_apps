@@ -1,8 +1,9 @@
 #include "DHT.h"
-#define DHTPIN 21      // Digital pin connected to the DHT sensor
-#define DHTTYPE DHT11   // DHT 
-
+#define DHTPIN 21      
+#define DHTTYPE DHT11
 #define LEDPIN 11
+
+// define coloured LED and buzzer pins
 
 int RED = 16;
 int YELLOW = 15;
@@ -12,51 +13,55 @@ int BUZZER = 17;
 DHT dht(DHTPIN, DHTTYPE);
 
 void setup() {
-// Setup serial for monitor and Setup Serial1 for BlueTooth
+
   Serial.begin(9600);
   Serial1.begin(9600);
+
   pinMode(BUZZER, OUTPUT);
   pinMode(GREEN, OUTPUT);
   pinMode(YELLOW, OUTPUT);
   pinMode(RED, OUTPUT);
   pinMode(DHTPIN, INPUT);
-  dht.begin();
   pinMode(LEDPIN, OUTPUT);
+
+  dht.begin();
+  
 }
 
+//Teensy waits for any command to light GREEN LED to show it is
+//ready to receive commands. It will wait for START_TEMP before sending 
+//sensor readings through Serial1.
+
+//This program will not activate yellow and red LEDs or the buzzer through reading the temperature.
+//The logic flow is: READ TEMP >> SEND TEMP to Raspi >> Raspi interprets temp and sends message if 
+//threshold has been reached >> publishes MQTT message >> Subcriber receives and sends message to Teensy
+//>> Teensy will interpret message.
+
 void loop() {
-// Process commands from bluetooth first.
+
   if(Serial1.available() > 0){
+
       digitalWrite(GREEN, HIGH);
       digitalWrite(YELLOW, LOW);
       digitalWrite(RED, LOW);
-      String str = Serial1.readString();//.substring(1);
+
+      String str = Serial1.readString();
 
       if(str == "START_TEMP"){
         bool started = true;
         while(started){
-  
-
-          Serial.println("RUNNING in start temp");
-    
         
           float h = dht.readHumidity();
           float t = dht.readTemperature();
           float f = dht.readTemperature(true);
-      
           float hif = dht.computeHeatIndex(f, h);
           float hic = dht.computeHeatIndex(t, h, false);
 
-     //      if(t > 29.0){
-       //     Serial1.print("T");
-        //  }  
           Serial1.print(F("Temperature: "));
           Serial1.print(t);
           Serial1.print(F("C Humidity: "));
           Serial1.print(h);
           Serial1.print(F("% "));
-         // Serial1.print(t);
-          // Serial1.print(F("C "));
           Serial1.print(f);
           Serial1.print(F("F  Heat index: "));
           Serial1.print(hic);
@@ -64,12 +69,8 @@ void loop() {
           Serial1.print(hif);
           Serial1.println(F("F"));
 
-
-
-    
           delay(1000);
           String str = Serial1.readString();
-
 
           if (str == "MEDIUM_TEMP"){
               digitalWrite(YELLOW, HIGH);
@@ -101,20 +102,10 @@ void loop() {
               Serial.println("STOPPED");
               started = false;
               delay(1000);
-        }
- 
-          
-        
+          }
 
-    
-    //Serial.println(str);
+        } 
 
-  } 
-  //else if(str == "STOP_TEMP"){
-    //  digitalWrite(LEDPIN, LOW);
-      //Serial.println("STOPPED");
-      //delay(1000);
-  //}
+      }
   }
-}
 }
