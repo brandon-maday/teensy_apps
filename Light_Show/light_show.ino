@@ -17,7 +17,6 @@ void setup() {
   pinMode(GREEN, OUTPUT);
   pinMode(YELLOW, OUTPUT);
   pinMode(RED, OUTPUT);
-  pinMode(BUZZER, OUTPUT);
 
 }
 
